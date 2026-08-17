@@ -10,7 +10,6 @@ Stores
 
 - Users
 - Infrastructure
-- Services
 - Incidents
 
 MongoDB
@@ -32,23 +31,37 @@ Stores
 
 ---
 
+# Schema Authority Note
+
+The physical PostgreSQL primary-key column for all core entities (`users`, `infrastructure`, `incidents`) is `id` (UUID).
+
+Domain-specific names such as `service_id` and `incident_id` are used in foreign-key relationships and API contracts, not as physical primary-key columns.
+
+The Python models may expose read-only property aliases (e.g., `service_id → id`, `incident_id → id`) for application-layer compatibility.
+
+`created_at` and `updated_at` are persistent lifecycle fields present on all three core tables.
+
+---
+
 # Users Table
 
 Fields
 
-user_id
+id (UUID, PRIMARY KEY — physical PostgreSQL column)
 
 name
 
-email
+email (UNIQUE)
 
 password
 
-role
+role (ENUM: admin, user, operator)
 
 created_at
 
 updated_at
+
+Note: The Python model does not expose a `user_id` property alias. The physical database column is `id`.
 
 ---
 
@@ -56,17 +69,21 @@ updated_at
 
 Fields
 
-service_id
+id (UUID, PRIMARY KEY — physical PostgreSQL column)
 
 service_name
 
 service_type
 
-status
+status (ENUM: active, inactive, degraded, healthy, unhealthy)
 
 host
 
 created_at
+
+updated_at
+
+Note: The Python model exposes `service_id` as a read-only property alias for `id`. This alias is available at the application layer; the physical database column is `id`.
 
 ---
 
@@ -142,17 +159,31 @@ created_at
 
 # Incident Table
 
-incident_id
+Fields
 
-service_id
+id (UUID, PRIMARY KEY — physical PostgreSQL column)
 
-severity
+service_id (UUID, NOT NULL — FK → infrastructure.id, ON DELETE RESTRICT)
+
+severity (ENUM: low, medium, high, critical)
 
 incident_type
 
-resolution_status
+resolution_status (ENUM: open, in_progress, resolved, closed)
 
 timestamp
+
+created_at
+
+updated_at
+
+Note: The Python model exposes `incident_id` as a read-only property alias for `id`. This alias is available at the application layer; the physical database column is `id`.
+
+Foreign Key
+
+incidents.service_id → infrastructure.id
+
+ON DELETE RESTRICT
 
 ---
 
