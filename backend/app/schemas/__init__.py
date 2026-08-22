@@ -1,5 +1,11 @@
 """Schemas package — shared Pydantic models for request/response shapes."""
 
+from app.schemas.incident import (
+    IncidentCreateRequest,
+    IncidentListResponse,
+    IncidentResponse,
+    IncidentUpdateRequest,
+)
 from app.schemas.responses import (
     ApiResponse,
     ErrorResponse,
@@ -14,4 +20,8 @@ __all__ = [
     "HealthResponse",
     "RootResponse",
     "VersionResponse",
+    "IncidentCreateRequest",
+    "IncidentUpdateRequest",
+    "IncidentResponse",
+    "IncidentListResponse",
 ]
